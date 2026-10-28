@@ -12,6 +12,8 @@ public enum V4IDs {
     /// Accepted by the Windows app next to the wired ID; most likely the 2.4 GHz receiver.
     public static let receiverProductID = 0x5B2F
     public static let productIDs = [wiredProductID, receiverProductID]
+    /// Bluetooth LE. Only exposes a 4-byte feature report 0x05, so it can't be configured.
+    public static let bluetoothProductID = 0x8266
 }
 
 public enum Command: UInt8, CustomStringConvertible, Sendable {

@@ -35,6 +35,9 @@ struct ContentView: View {
             switch store.phase {
             case .ready:
                 detail(for: pane ?? .overview)
+            case .searching where store.bluetoothConnected:
+                ContentUnavailableView("Connected over Bluetooth", systemImage: "dot.radiowaves.left.and.right",
+                                       description: Text("The mouse works, but its settings can't be changed over Bluetooth. Connect the USB cable or plug in the 2.4 GHz receiver to change them. Settings are stored in the mouse, so they still apply when you switch back to Bluetooth."))
             case .searching:
                 ContentUnavailableView("Connect your NOVA V4", systemImage: "cable.connector",
                                        description: Text("Plug in the mouse with its USB cable, or plug in its 2.4 GHz receiver."))
@@ -63,6 +66,8 @@ struct StatusFooter: View {
             if let h = store.handle {
                 Label(h.kind.rawValue, systemImage: h.kind == .wired ? "cable.connector" : "antenna.radiowaves.left.and.right")
                     .font(.caption)
+            } else if store.bluetoothConnected {
+                Label("Bluetooth",systemImage: "dot.radiowaves.left.and.right").font(.caption)
             }
             if store.saving {
                 Label("Saving…", systemImage: "arrow.triangle.2.circlepath").font(.caption).foregroundStyle(.secondary)

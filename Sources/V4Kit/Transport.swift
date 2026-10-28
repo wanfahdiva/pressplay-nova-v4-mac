@@ -58,11 +58,13 @@ private func registryID(of d: IOHIDDevice) -> UInt64 {
 public final class V4DeviceBrowser {
     private let manager: IOHIDManager
     public private(set) var devices: [V4DeviceHandle] = []
+    /// The mouse is connected over Bluetooth, which has no configuration report.
+    public private(set) var bluetoothConnected = false
     public var onChange: (([V4DeviceHandle]) -> Void)?
 
     public init() {
         manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
-        let matching = V4IDs.productIDs.map {
+        let matching = (V4IDs.productIDs + [V4IDs.bluetoothProductID]).map {
             [kIOHIDVendorIDKey: V4IDs.vendorID, kIOHIDProductIDKey: $0] as CFDictionary
         } as CFArray
         IOHIDManagerSetDeviceMatchingMultiple(manager, matching)
@@ -88,8 +90,10 @@ public final class V4DeviceBrowser {
                                productName: (IOHIDDeviceGetProperty(d, kIOHIDProductKey as CFString) as? String) ?? "NOVA V4")
             }
             .sorted { ($0.productID, $0.registryID) < ($1.productID, $1.registryID) }
-        if list != devices {
+        let bluetooth = all.contains { intProperty($0, kIOHIDProductIDKey) == V4IDs.bluetoothProductID }
+        if list != devices || bluetooth != bluetoothConnected {
             devices = list
+            bluetoothConnected = bluetooth
             onChange?(list)
         }
     }

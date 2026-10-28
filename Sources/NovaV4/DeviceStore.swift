@@ -13,6 +13,8 @@ final class DeviceStore {
 
     var phase: Phase = .searching
     private(set) var handle: V4DeviceHandle?
+    /// Connected over Bluetooth only, where settings can't be changed.
+    private(set) var bluetoothConnected = false
     var status: DeviceStatus?
     var saving = false
     var lastError: String?
@@ -56,6 +58,7 @@ final class DeviceStore {
     // MARK: Connection
 
     private func devicesChanged(_ list: [V4DeviceHandle]) {
+        bluetoothConnected = browser.bluetoothConnected
         if let h = handle, !list.contains(h) { disconnect() }
         if session == nil, let first = list.first { connect(first) }
     }
