@@ -12,7 +12,7 @@ Recovered from the official Windows driver installer (`NOVA V4.exe`) and checked
 
 ## Transport
 
-* VID `0x248A`. PID `0x5B2E` is the wired mouse (observed). PID `0x5B2F` is also accepted by the driver and is probably the receiver (code).
+* VID `0x248A`. PID `0x5B2E` is the wired mouse (observed). PID `0x5B2F` is accepted by the driver; the app also works through the 2.4 GHz receiver (reported by the user). Bluetooth uses PID `0x8266`, see below.
 * The driver uses the HID interface whose feature report is **33 bytes** (check at 0x4354ee). On macOS that's usage `0001:0006`. The descriptor declares vendor collection `FF00:0001`, feature report ID `0x0C`, 32 data bytes.
 * Writes use `HidD_SetFeature`, followed by `Sleep(60)`. Reads are `HidD_SetFeature(0x20)`, then `Sleep(10)`, then `HidD_GetFeature` (0x43a670). The read is retried once if byte 2 is 0.
 * No Input Monitoring permission was needed on this Mac (observed).
@@ -92,4 +92,8 @@ Codes for the other menu entries (DPI ±, fire key, media keys, shortcuts, disab
 
 * Codes for keyboard shortcuts, media keys, DPI ±, fire key and disable, plus the macro format details.
 * What the 64-byte vendor interface (`FFEF:0000`) is for; it also answers `0x20`.
-* Behaviour through the receiver (`0x5B2F`) hasn't been tested.
+## Bluetooth (observed)
+
+Over Bluetooth Low Energy the mouse reports VID `0x248A`, PID `0x8266`. Its report descriptor has the mouse input report `0x03` and one vendor collection `FF01:0001` with a 4-byte feature report `0x05`, which reads back as `00 00 00 00`. Feature report `0x0C` doesn't exist there (`GetReport` fails), and the Windows driver never references PID `0x8266`. So configuration isn't possible over Bluetooth with this protocol.
+
+The BLE address goes up by one in its second byte (`D1:07…`, `D1:08…`, `D1:09…`) on each new pairing, so the host sees a new device every time.

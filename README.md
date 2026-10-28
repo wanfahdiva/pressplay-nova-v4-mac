@@ -24,6 +24,14 @@ Requires macOS 14 or later on Apple silicon. On an Intel Mac, build it from sour
 
 The mouse can't report most of its settings. The app keeps its own copy and sends a group about 0.35 s after you change it. Opening the app sends nothing. Use **Write All Settings to Mouse** to push everything, for example after configuring the mouse on Windows. The active DPI stage and polling rate *are* reported by the mouse, so DPI-button presses show up in the app.
 
+## Bluetooth
+
+Settings can only be changed over the **USB cable** or the **2.4 GHz receiver**, not over Bluetooth. Over Bluetooth the mouse shows up as `248A:8266` and doesn't offer the configuration report the app uses. PressPlay's Windows software doesn't support the Bluetooth connection either.
+
+Settings are stored in the mouse, so set it up once over the cable or receiver and they also apply over Bluetooth. Bluetooth itself limits the polling rate to about 125 Hz.
+
+Each time the mouse is put into pairing mode it uses a new Bluetooth address, so macOS adds another "NOVA v4" entry. Forget the old entry in System Settings → Bluetooth before pairing again. Switching back to Bluetooth mode without re-pairing keeps the existing entry.
+
 ## Build from source
 
 Needs the Swift toolchain (Xcode or just the Command Line Tools).
@@ -47,7 +55,7 @@ build/novav4ctl raw 07 01 --trace     # one raw frame, printing the bytes
 
 * Keyboard shortcuts, media keys, DPI ±, fire key, disable and macros. Their codes weren't recovered.
 * The Windows app's "Restore" (command `0x0F`).
-* Using the mouse through the 2.4 GHz receiver is supported by the code (PID `0x5B2F`) but hasn't been tested.
+* Changing settings over Bluetooth (see [Bluetooth](#bluetooth)).
 
 Contributions are welcome, especially button codes captured from the Windows app.
 
