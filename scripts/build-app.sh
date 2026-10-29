@@ -32,7 +32,16 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </plist>
 PLIST
 
-# Ad-hoc signature so an Input Monitoring grant (if macOS asks for one) sticks to this bundle.
-codesign --force --sign - "$APP"
-codesign --force --sign - build/novav4ctl
+# macOS ties the Input Monitoring grant to the signature's designated requirement. An ad-hoc
+# signature's requirement is the cdhash, which changes on every build, so each rebuild loses the grant
+# even though System Settings still shows it enabled. Signing with a fixed identity (e.g. a self-signed
+# "Code Signing" certificate from Keychain Access) keeps the grant across builds:
+#   SIGN_IDENTITY="NOVA V4 Dev" scripts/build-app.sh
+IDENTITY="${SIGN_IDENTITY:--}"
+codesign --force --sign "$IDENTITY" "$APP"
+codesign --force --sign "$IDENTITY" build/novav4ctl
 echo "built: $APP and build/novav4ctl"
+if [ "$IDENTITY" = "-" ]; then
+    echo "note: ad-hoc signed. After replacing an older build, re-grant Input Monitoring:"
+    echo "      tccutil reset ListenEvent local.novav4.configurator"
+fi
